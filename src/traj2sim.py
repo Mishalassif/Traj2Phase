@@ -12,6 +12,7 @@ class Traj2Sim:
         
         self.trajectories = []
         self.dist_mat = np.empty((1,1))
+        self.dist = 'custom'
 
     def set_trajectories(self, list_traj):
         self.trajectories = list_traj
@@ -26,8 +27,13 @@ class Traj2Sim:
     def compute_dist(self):
         for i in range(len(self.trajectories)):
             for j in range(len(self.trajectories)):
-                #self.dist_mat[i,j] = directed_hausdorff(self.trajectories[i], self.trajectories[j])[0]
-                self.dist_mat[i,j] = self.matching_dist(self.trajectories[i], self.trajectories[j])
+                if self.dist == 'custom':
+                    self.dist_mat[i,j] = self.custom_broken_dist(self.trajectories[i], self.trajectories[j])
+                    print('Custom distance between ' + str(i) + ', ' + str(j) + ': ' + str(self.dist_mat[i,j]))
+                elif self.dist == 'hausdorff':
+                    self.dist_mat[i,j] = directed_hausdorff(self.trajectories[i], self.trajectories[j])[0]
+                elif self.dist == 'dtw':
+                    self.dist_mat[i,j] = dtw_ndim.distance(self.trajectories[i], self.trajectories[j])
 
     def compute_sim(self, verbose=False):
         rips_complex = gudhi.RipsComplex(distance_matrix=self.dist_mat)
@@ -40,36 +46,75 @@ class Traj2Sim:
             fmt = '%s -> %.2f'
             for filtered_value in self.simplex_tree.get_filtration():
                 print(fmt % tuple(filtered_value))
+            print('\n')
 
-    def compute_persistence(self):
+    def display_persistence(self):
         self.simplex_tree.compute_persistence()
-        print(self.simplex_tree.persistence(homology_coeff_field=2, min_persistence=-1.0))
-        print(self.simplex_tree.persistence_intervals_in_dimension(1))
+        #self.simplex_tree.persistence(homology_coeff_field=2, min_persistence=-1.0))
+        if self.simplex_tree.persistence_intervals_in_dimension(0).shape[0] != 0: 
+            gudhi.plot_persistence_diagram(self.simplex_tree.persistence_intervals_in_dimension(0))
+        if self.simplex_tree.persistence_intervals_in_dimension(1).shape[0] != 0: 
+            gudhi.plot_persistence_diagram(self.simplex_tree.persistence_intervals_in_dimension(1))
+        if self.simplex_tree.persistence_intervals_in_dimension(2).shape[0] != 0: 
+            gudhi.plot_persistence_diagram(self.simplex_tree.persistence_intervals_in_dimension(2))
 
     def _dist_to_line(self,l1, l2, p):
         t = max(min(-(np.dot(p-l1, l2-l1))/(np.linalg.norm(l2-l1)**2),1),0)
         return np.linalg.norm(l1 + t*(l2-l1) - p)
+    
+    def _check_overlap(self, t1_i, t1_f, t2_i, t2_f):
+        if t1_f < t2_i:
+            return False, 0, 1, 0, 2
+        elif t2_f < t1_i:
+            return False, 0, 2, 0, 1
 
-    def matching_dist(self,traj1, traj2):
-        #s1 = np.array([0., 0, 1, 2, 1, 0, 1, 0, 0, 2, 1, 0, 0])
-        #s2 = np.array([0., 1, 2, 3, 1, 0, 0, 0, 2, 1, 0, 0, 0])
-        #path = dtw.warping_path(s1, s2)
-        return dtw_ndim.distance(traj1, traj2)
-'''
-        len1 = traj1.shape[1]
-        len2 = traj2.shape[1]
-        dist_array = np.zeros((len1, len2))
-        for j in range(len2):
-            if j == 0:
-                dist_array[len1-1,len2-1] = np.linalg.norm(traj1[:,len1-1]-traj2[:,len2-1])
+        if t1_i > t2_i:
+            ot_i = t1_i
+            tr_i = 1
+        else:
+            ot_i = t2_i
+            tr_i = 2
+
+        if t1_f < t2_f:
+            ot_f = t1_f
+            tr_f = 1
+        else:
+            ot_f = t2_f
+            tr_f = 2
+        return True, ot_i, tr_i, ot_f, tr_f
+
+    def _dist_integ(self, ot_i, ot_f, t1_i, t1_f, t2_i, t2_f):
+        if ot_i == t1_i[0]:
+            t2_ot_i = t2_i[1:] + ((ot_i-t2_i[0])/(t2_f[0]-t2_i[0]))*(t2_f[1:]-t2_i[1:])
+            d_i = np.linalg.norm(t2_ot_i - t1_i[1:])
+        elif ot_i == t2_i[0]:
+            t1_ot_i = t1_i[1:] + ((ot_i-t1_i[0])/(t1_f[0]-t1_i[0]))*(t1_f[1:]-t1_i[1:])
+            d_i = np.linalg.norm(t2_i[1:] - t1_ot_i)
+
+        if ot_f == t1_f[0]:
+            t2_ot_f = t2_i[1:] + ((ot_f-t2_i[0])/(t2_f[0]-t2_i[0]))*(t2_f[1:]-t2_i[1:])
+            d_f = np.linalg.norm(t2_ot_f - t1_f[1:])
+        elif ot_f == t2_f[0]:
+            t1_ot_f = t1_i[1:] + ((ot_f-t1_i[0])/(t1_f[0]-t1_i[0]))*(t1_f[1:]-t1_i[1:])
+            d_f = np.linalg.norm(t2_f[1:] - t1_ot_f)
+
+        return (ot_f-ot_i)*(1/d_i + 1/d_f)/2.0
+
+
+    def custom_broken_dist(self, traj1, traj2):
+        dist = 0
+        i = 0
+        j = 0
+        while(1):
+            if i == len(traj1)-1 or j == len(traj2)-1:
+                break
+            overlap, ot_i, tr_i, ot_f, tr_f = self._check_overlap(traj1[i,0], traj1[i+1,0], traj2[j,0], traj2[j+1,0])
+            if overlap == True:
+                dist += self._dist_integ(ot_i, ot_f, traj1[i], traj1[i+1], traj2[j], traj2[j+1])
+            if ot_i == 1:
+                i = i+1
                 continue
-            dist_array[len1-1,len2-1-j] = min(np.linalg.norm(traj1[:,len1-1]-traj2[:,len2-1-j]),
-                    dist_array[len1-1, len2-1-j+1])
-
-        temp = np.zeros((1,len2))
-        for i in range(2,len1+1):
-            for j in range(1,len2):
-            
-        return _dist_to_line(traj1[ind1], traj2[ind2])
-'''
-
+            else:
+                j = j+1
+                continue
+        return 1/dist
