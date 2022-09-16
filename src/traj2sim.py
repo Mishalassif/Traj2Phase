@@ -24,12 +24,13 @@ class Traj2Sim:
     def norm(self, traj_1, traj_2):
         return np.linalg.norm(traj_1-traj_2)
 
-    def compute_dist(self):
+    def compute_dist(self, verbose=False):
         for i in range(len(self.trajectories)):
             for j in range(len(self.trajectories)):
                 if self.dist == 'custom':
                     self.dist_mat[i,j] = self.custom_broken_dist(self.trajectories[i], self.trajectories[j])
-                    print('Custom distance between ' + str(i) + ', ' + str(j) + ': ' + str(self.dist_mat[i,j]))
+                    if verbose == True:
+                        print('Custom distance between ' + str(i) + ', ' + str(j) + ': ' + str(self.dist_mat[i,j]))
                 elif self.dist == 'hausdorff':
                     self.dist_mat[i,j] = directed_hausdorff(self.trajectories[i], self.trajectories[j])[0]
                 elif self.dist == 'dtw':
@@ -68,19 +69,19 @@ class Traj2Sim:
         elif t2_f < t1_i:
             return False, 0, 2, 0, 1
 
-        if t1_i > t2_i:
+        if t1_i >= t2_i:
             ot_i = t1_i
-            tr_i = 1
+            tr_i = 2
         else:
             ot_i = t2_i
-            tr_i = 2
+            tr_i = 1
 
-        if t1_f < t2_f:
+        if t1_f <= t2_f:
             ot_f = t1_f
-            tr_f = 1
+            tr_f = 2
         else:
             ot_f = t2_f
-            tr_f = 2
+            tr_f = 1
         return True, ot_i, tr_i, ot_f, tr_f
 
     def _dist_integ(self, ot_i, ot_f, t1_i, t1_f, t2_i, t2_f):
@@ -97,7 +98,9 @@ class Traj2Sim:
         elif ot_f == t2_f[0]:
             t1_ot_f = t1_i[1:] + ((ot_f-t1_i[0])/(t1_f[0]-t1_i[0]))*(t1_f[1:]-t1_i[1:])
             d_f = np.linalg.norm(t2_f[1:] - t1_ot_f)
-
+        
+        d_i = max(d_i, 10e-4)
+        d_f = max(d_f, 10e-4)
         return (ot_f-ot_i)*(1/d_i + 1/d_f)/2.0
 
 
@@ -106,15 +109,30 @@ class Traj2Sim:
         i = 0
         j = 0
         while(1):
-            if i == len(traj1)-1 or j == len(traj2)-1:
+            if i == len(traj1)-1 and j == len(traj2)-1:
                 break
             overlap, ot_i, tr_i, ot_f, tr_f = self._check_overlap(traj1[i,0], traj1[i+1,0], traj2[j,0], traj2[j+1,0])
             if overlap == True:
+                #print('overlap at ' + str(i) + ', ' + str(j))
                 dist += self._dist_integ(ot_i, ot_f, traj1[i], traj1[i+1], traj2[j], traj2[j+1])
-            if ot_i == 1:
+                #print(dist)
+                #print(ot_i)
+                #print(ot_f)
+                #print(tr_i)
+                #print(tr_f)
+                #print('%d %d %d %d', traj1[i,0], traj1[i+1,0], traj2[j,0], traj2[j+1,0])
+            #else:
+                #print('No overlap at ' + str(i) + ', ' + str(j))
+            if tr_i == 1:
+                if i == len(traj1)-2:
+                    break
                 i = i+1
                 continue
             else:
+                if j == len(traj2)-2:
+                    break
                 j = j+1
                 continue
+        if dist == 0:
+            return np.inf
         return 1/dist
