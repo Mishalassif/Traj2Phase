@@ -3,6 +3,9 @@ import math
 import gudhi
 from scipy.spatial.distance import directed_hausdorff
 import matplotlib.pyplot as plt
+import operator
+
+
 
 from dtaidistance import dtw
 from dtaidistance import dtw_ndim
@@ -225,4 +228,105 @@ class Traj2Sim:
                 j = j+1
                 continue
         print(matching_times)
-        return max(matching_times)
+        delta = max(matching_times)
+        if delta == -1.0:
+            return np.inf
+        else:
+            return delta
+    
+    def smallest_matching_dist(self, traj1, traj2, delta):
+        overlapping_dist = []
+        i = 0
+        j = 0
+        curr_time = 0
+        overlap_ongoing = False
+        print(len(traj1))
+        print(len(traj2))
+        while(1):
+            print('i,j: '+ str(i) + ',' + str(j))
+            print('intervals: ' + '['+str(traj1[i,0]) +','+str(traj1[i+1,0])+'], ' +'['+str(traj2[j,0])+','+str(traj2[j+1,0])+']')
+
+            if i >= len(traj1)-1 and j >= len(traj2)-1:
+                print('Appending ' + str(curr_time))
+                matching_times.append(curr_time)
+                break
+            if(traj1[i+1,0]-traj1[i,0] < 0 or traj2[i+1,0]-traj2[i,0]<0):
+                print('Time ordering Error!!!!')
+            overlap, ot_i, tr_i, ot_f, tr_f = self._check_overlap(traj1[i,0], traj1[i+1,0], traj2[j,0], traj2[j+1,0])
+            t1_i = traj1[i]
+            t2_i = traj2[j]
+            t1_f = traj1[i+1]
+            t2_f = traj2[j+1]
+            if overlap == True:
+                overlap_ongoing = True
+                
+                print('Times ot_i, t1_i[0], t2_i[0], ot_f, t1_f[0], t2_f[0]')
+                print(str(ot_i) + ','+str(t1_i[0]) + ',' + str(t2_i[0]) + ',' + str(ot_f) + ',' + str(t1_f[0]) + ',' + str(t2_f[0]))
+                if ot_i == t1_i[0]:
+                    t2_ot_i = t2_i[1:] + ((ot_i-t2_i[0])/(t2_f[0]-t2_i[0]))*(t2_f[1:]-t2_i[1:])
+                    d_i = np.linalg.norm(t2_ot_i - t1_i[1:])
+                    print('d_i for i, j and ot_i==1: ' + str(i) +',' + str(j)+','+str(d_i))
+                elif ot_i == t2_i[0]:
+                    t1_ot_i = t1_i[1:] + ((ot_i-t1_i[0])/(t1_f[0]-t1_i[0]))*(t1_f[1:]-t1_i[1:])
+                    d_i = np.linalg.norm(t2_i[1:] - t1_ot_i)
+                    print('d_i for i, j and ot_i==2: ' + str(i) +',' + str(j)+','+str(d_i))
+
+                if ot_f == t1_f[0]:
+                    t2_ot_f = t2_i[1:] + ((ot_f-t2_i[0])/(t2_f[0]-t2_i[0]))*(t2_f[1:]-t2_i[1:])
+                    d_f = np.linalg.norm(t2_ot_f - t1_f[1:])
+                    print('d_f for i, j and ot_f==1: ' + str(i) +',' + str(j)+','+str(d_f))
+                elif ot_f == t2_f[0]:
+                    t1_ot_f = t1_i[1:] + ((ot_f-t1_i[0])/(t1_f[0]-t1_i[0]))*(t1_f[1:]-t1_i[1:])
+                    d_f = np.linalg.norm(t2_f[1:] - t1_ot_f)
+                    print('d_f for i, j and ot_f==2: ' + str(i) +',' + str(j)+','+str(d_f))
+
+                overlapping_dist.append([ot_i, d_i])
+
+            else:
+                if overlap_ongoing == True:
+                    print('Overlapping times ended!')
+                    break
+
+            if tr_i == 1:
+                if i == len(traj1)-2:
+                    break
+                i = i+1
+                continue
+            else:
+                if j == len(traj2)-2:
+                    break
+                j = j+1
+                continue
+        print('Overlapping distances: ' + str(overlapping_dist))
+        
+        if overlapping_dist[-1][0] - overlapping_dist[0][0] < delta:
+            return np.inf
+
+        i = 0
+        j = len(overlapping_dist)-1
+        eps_list = []
+        print('Length:')
+        print(len(overlapping_dist))
+        while(1):
+            if i == len(overlapping_dist):
+                break
+            if overlapping_dist[-1][0]-overlapping_dist[i][0] < delta:
+                break
+            if overlapping_dist[j][0]-overlapping_dist[i][0] >= delta:
+                j = j-1
+                continue
+            else:
+                #print('ij:')
+                #print(i)
+                #print(j)
+                if i == j:
+                    eps_list.append([i, overlapping_dist[i:j+1][0][1]])
+                else:
+                    eps_list.append([i, max(overlapping_dist[i:j+1], key=operator.itemgetter(1))[1]])
+                    print('right max:')
+                    print(max(overlapping_dist[i:j+1], key=operator.itemgetter(1))[1])
+                i=i+1
+                j = len(overlapping_dist)-1
+        
+        print(eps_list)
+        return min(eps_list, key=operator.itemgetter(1))

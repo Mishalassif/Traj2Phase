@@ -38,14 +38,14 @@ for i in range(length):
     traj1[i][3] = time1[i]
     traj2[i][3] = time2[i]
 
-eps=0.9
+eps=1
 
-print(t2s.longest_matching_time(traj1, traj2, eps))
+#print(t2s.longest_matching_time(traj1, traj2, eps))
+print(t2s.smallest_matching_dist(traj1, traj2, eps))
 
 plt.plot(time1, y1)
 plt.plot(time2, y2)
 for i in range(length):
-    print(np.sign(y2[i]-y1[i]))
     plt.plot([time1[i], time1[i]], [y1[i]+eps/2, y1[i]-eps/2],c='g')
     plt.plot([time2[i], time2[i]], [y2[i]-eps/2, y2[i]+eps/2],c='r')
 plt.show()
