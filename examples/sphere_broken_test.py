@@ -48,7 +48,6 @@ t2s.dist = 'custom'
 t2s.compute_dist(verbose=False)
 t2s.compute_sim(verbose=False)
 
-print(t2s.longest_matching_time(list_traj[0], list_traj[1], 0.124))
 
 print('Persistence intervals:')
 #print(t2s.simplex_tree.persistence(homology_coeff_field=2, min_persistence=0.01))

@@ -202,15 +202,7 @@ class Traj2Sim:
                 elif d_i > epsilon:
                     if d_f <= epsilon:
                         curr_time = (ot_f-ot_i)*(epsilon-d_f)/(d_i-d_f)
-
-                print(curr_time)
-                #print('overlap at ' + str(i) + ', ' + str(j))
-                #print(dist)
-                #print(ot_i)
-                #print(ot_f)
-                #print(tr_i)
-                #print(tr_f)
-                #print('%d %d %d %d', traj1[i,0], traj1[i+1,0], traj2[j,0], traj2[j+1,0])
+                print('Curr time: ' + str(curr_time))
             else:
                 if overlap_ongoing == True:
                     print('Appending ' + str(curr_time))
