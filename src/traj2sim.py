@@ -44,7 +44,7 @@ class Traj2Sim:
 
     def compute_sim(self, verbose=False):
         rips_complex = gudhi.RipsComplex(distance_matrix=self.dist_mat)
-        self.simplex_tree = rips_complex.create_simplex_tree(max_dimension=3)
+        self.simplex_tree = rips_complex.create_simplex_tree(max_dimension=4)
         if verbose == True:
             result_str = 'Rips complex is of dimension ' + repr(self.simplex_tree.dimension()) + ' - ' + \
                 repr(self.simplex_tree.num_simplices()) + ' simplices - ' + \
@@ -59,13 +59,20 @@ class Traj2Sim:
         self.simplex_tree.compute_persistence(min_persistence=-0.1)
         #self.simplex_tree.persistence(homology_coeff_field=2, min_persistence=-1.0))
         if self.simplex_tree.persistence_intervals_in_dimension(0).shape[0] != 0: 
+            print('PH Dimension 0')
             gudhi.plot_persistence_diagram(self.simplex_tree.persistence_intervals_in_dimension(0))
             plt.show()
         if self.simplex_tree.persistence_intervals_in_dimension(1).shape[0] != 0: 
+            print('PH Dimension 1')
             gudhi.plot_persistence_diagram(self.simplex_tree.persistence_intervals_in_dimension(1))
             plt.show()
         if self.simplex_tree.persistence_intervals_in_dimension(2).shape[0] != 0: 
+            print('PH Dimension 2')
             gudhi.plot_persistence_diagram(self.simplex_tree.persistence_intervals_in_dimension(2))
+            plt.show()
+        if self.simplex_tree.persistence_intervals_in_dimension(2).shape[0] != 0: 
+            print('PH Dimension 3')
+            gudhi.plot_persistence_diagram(self.simplex_tree.persistence_intervals_in_dimension(3))
             plt.show()
 
     def _dist_to_line(self,l1, l2, p):
@@ -119,8 +126,8 @@ class Traj2Sim:
         while(1):
             if i == len(traj1)-1 and j == len(traj2)-1:
                 break
-            if(traj1[i+1,0]-traj1[i,0] < 0 or traj2[i+1,0]-traj2[i,0]<0):
-                print('Time ordering Error!!!!')
+            #if(traj1[i+1,0]-traj1[i,0] < 0 or traj2[i+1,0]-traj2[i,0]<0):
+            #    print('Time ordering Error!!!!')
             overlap, ot_i, tr_i, ot_f, tr_f = self._check_overlap(traj1[i,0], traj1[i+1,0], traj2[j,0], traj2[j+1,0])
             if overlap == True:
                 #print('overlap at ' + str(i) + ', ' + str(j))
@@ -174,25 +181,25 @@ class Traj2Sim:
                 overlap_ongoing = True
                 d_i = 10000
                 d_f = 10000
-                print('Times ot_i, t1_i[0], t2_i[0], ot_f, t1_f[0], t2_f[0]')
-                print(str(ot_i) + ','+str(t1_i[0]) + ',' + str(t2_i[0]) + ',' + str(ot_f) + ',' + str(t1_f[0]) + ',' + str(t2_f[0]))
+                #print('Times ot_i, t1_i[0], t2_i[0], ot_f, t1_f[0], t2_f[0]')
+                #print(str(ot_i) + ','+str(t1_i[0]) + ',' + str(t2_i[0]) + ',' + str(ot_f) + ',' + str(t1_f[0]) + ',' + str(t2_f[0]))
                 if ot_i == t1_i[0]:
                     t2_ot_i = t2_i[1:] + ((ot_i-t2_i[0])/(t2_f[0]-t2_i[0]))*(t2_f[1:]-t2_i[1:])
                     d_i = np.linalg.norm(t2_ot_i - t1_i[1:])
-                    print('d_i for i, j and ot_i==1: ' + str(i) +',' + str(j)+','+str(d_i))
+                    #print('d_i for i, j and ot_i==1: ' + str(i) +',' + str(j)+','+str(d_i))
                 elif ot_i == t2_i[0]:
                     t1_ot_i = t1_i[1:] + ((ot_i-t1_i[0])/(t1_f[0]-t1_i[0]))*(t1_f[1:]-t1_i[1:])
                     d_i = np.linalg.norm(t2_i[1:] - t1_ot_i)
-                    print('d_i for i, j and ot_i==2: ' + str(i) +',' + str(j)+','+str(d_i))
+                    #print('d_i for i, j and ot_i==2: ' + str(i) +',' + str(j)+','+str(d_i))
 
                 if ot_f == t1_f[0]:
                     t2_ot_f = t2_i[1:] + ((ot_f-t2_i[0])/(t2_f[0]-t2_i[0]))*(t2_f[1:]-t2_i[1:])
                     d_f = np.linalg.norm(t2_ot_f - t1_f[1:])
-                    print('d_f for i, j and ot_f==1: ' + str(i) +',' + str(j)+','+str(d_f))
+                    #print('d_f for i, j and ot_f==1: ' + str(i) +',' + str(j)+','+str(d_f))
                 elif ot_f == t2_f[0]:
                     t1_ot_f = t1_i[1:] + ((ot_f-t1_i[0])/(t1_f[0]-t1_i[0]))*(t1_f[1:]-t1_i[1:])
                     d_f = np.linalg.norm(t2_f[1:] - t1_ot_f)
-                    print('d_f for i, j and ot_f==2: ' + str(i) +',' + str(j)+','+str(d_f))
+                    #print('d_f for i, j and ot_f==2: ' + str(i) +',' + str(j)+','+str(d_f))
 
                 if d_i <= epsilon:
                     if d_f <= epsilon:
@@ -205,24 +212,24 @@ class Traj2Sim:
                 elif d_i > epsilon:
                     if d_f <= epsilon:
                         curr_time = (ot_f-ot_i)*(epsilon-d_f)/(d_i-d_f)
-                print('Curr time: ' + str(curr_time))
+                #print('Curr time: ' + str(curr_time))
             else:
                 if overlap_ongoing == True:
-                    print('Appending ' + str(curr_time))
+                    #print('Appending ' + str(curr_time))
                     matching_times.append(curr_time)
                     curr_time = 0
                     overlap_ongoing = False
 
             if tr_i == 1:
                 if i == len(traj1)-2:
-                    print('Appending ' + str(curr_time))
+                    #print('Appending ' + str(curr_time))
                     matching_times.append(curr_time)
                     break
                 i = i+1
                 continue
             else:
                 if j == len(traj2)-2:
-                    print('Appending ' + str(curr_time))
+                    #print('Appending ' + str(curr_time))
                     matching_times.append(curr_time)
                     break
                 j = j+1
@@ -240,14 +247,14 @@ class Traj2Sim:
         j = 0
         curr_time = 0
         overlap_ongoing = False
-        print(len(traj1))
-        print(len(traj2))
+        #print(len(traj1))
+        #print(len(traj2))
         while(1):
-            print('i,j: '+ str(i) + ',' + str(j))
-            print('intervals: ' + '['+str(traj1[i,0]) +','+str(traj1[i+1,0])+'], ' +'['+str(traj2[j,0])+','+str(traj2[j+1,0])+']')
+            #print('i,j: '+ str(i) + ',' + str(j))
+            #print('intervals: ' + '['+str(traj1[i,0]) +','+str(traj1[i+1,0])+'], ' +'['+str(traj2[j,0])+','+str(traj2[j+1,0])+']')
 
             if i >= len(traj1)-1 and j >= len(traj2)-1:
-                print('Appending ' + str(curr_time))
+                #print('Appending ' + str(curr_time))
                 matching_times.append(curr_time)
                 break
             if(traj1[i+1,0]-traj1[i,0] < 0 or traj2[i+1,0]-traj2[i,0]<0):
@@ -260,25 +267,25 @@ class Traj2Sim:
             if overlap == True:
                 overlap_ongoing = True
                 
-                print('Times ot_i, t1_i[0], t2_i[0], ot_f, t1_f[0], t2_f[0]')
-                print(str(ot_i) + ','+str(t1_i[0]) + ',' + str(t2_i[0]) + ',' + str(ot_f) + ',' + str(t1_f[0]) + ',' + str(t2_f[0]))
+                #print('Times ot_i, t1_i[0], t2_i[0], ot_f, t1_f[0], t2_f[0]')
+                #print(str(ot_i) + ','+str(t1_i[0]) + ',' + str(t2_i[0]) + ',' + str(ot_f) + ',' + str(t1_f[0]) + ',' + str(t2_f[0]))
                 if ot_i == t1_i[0]:
                     t2_ot_i = t2_i[1:] + ((ot_i-t2_i[0])/(t2_f[0]-t2_i[0]))*(t2_f[1:]-t2_i[1:])
                     d_i = np.linalg.norm(t2_ot_i - t1_i[1:])
-                    print('d_i for i, j and ot_i==1: ' + str(i) +',' + str(j)+','+str(d_i))
+                    #print('d_i for i, j and ot_i==1: ' + str(i) +',' + str(j)+','+str(d_i))
                 elif ot_i == t2_i[0]:
                     t1_ot_i = t1_i[1:] + ((ot_i-t1_i[0])/(t1_f[0]-t1_i[0]))*(t1_f[1:]-t1_i[1:])
                     d_i = np.linalg.norm(t2_i[1:] - t1_ot_i)
-                    print('d_i for i, j and ot_i==2: ' + str(i) +',' + str(j)+','+str(d_i))
+                    #print('d_i for i, j and ot_i==2: ' + str(i) +',' + str(j)+','+str(d_i))
 
                 if ot_f == t1_f[0]:
                     t2_ot_f = t2_i[1:] + ((ot_f-t2_i[0])/(t2_f[0]-t2_i[0]))*(t2_f[1:]-t2_i[1:])
                     d_f = np.linalg.norm(t2_ot_f - t1_f[1:])
-                    print('d_f for i, j and ot_f==1: ' + str(i) +',' + str(j)+','+str(d_f))
+                    #print('d_f for i, j and ot_f==1: ' + str(i) +',' + str(j)+','+str(d_f))
                 elif ot_f == t2_f[0]:
                     t1_ot_f = t1_i[1:] + ((ot_f-t1_i[0])/(t1_f[0]-t1_i[0]))*(t1_f[1:]-t1_i[1:])
                     d_f = np.linalg.norm(t2_f[1:] - t1_ot_f)
-                    print('d_f for i, j and ot_f==2: ' + str(i) +',' + str(j)+','+str(d_f))
+                    #print('d_f for i, j and ot_f==2: ' + str(i) +',' + str(j)+','+str(d_f))
 
                 overlapping_dist.append([ot_i, d_i])
 
@@ -297,7 +304,7 @@ class Traj2Sim:
                     break
                 j = j+1
                 continue
-        print('Overlapping distances: ' + str(overlapping_dist))
+        #print('Overlapping distances: ' + str(overlapping_dist))
         
         if overlapping_dist[-1][0] - overlapping_dist[0][0] < delta:
             return np.inf
@@ -305,8 +312,8 @@ class Traj2Sim:
         i = 0
         j = len(overlapping_dist)-1
         eps_list = []
-        print('Length:')
-        print(len(overlapping_dist))
+        #print('Length:')
+        #print(len(overlapping_dist))
         while(1):
             if i == len(overlapping_dist):
                 break
@@ -323,10 +330,10 @@ class Traj2Sim:
                     eps_list.append([i, overlapping_dist[i:j+1][0][1]])
                 else:
                     eps_list.append([i, max(overlapping_dist[i:j+1], key=operator.itemgetter(1))[1]])
-                    print('right max:')
-                    print(max(overlapping_dist[i:j+1], key=operator.itemgetter(1))[1])
+                    #print('right max:')
+                    #print(max(overlapping_dist[i:j+1], key=operator.itemgetter(1))[1])
                 i=i+1
                 j = len(overlapping_dist)-1
         
-        print(eps_list)
+        #print(eps_list)
         return min(eps_list, key=operator.itemgetter(1))
