@@ -40,8 +40,11 @@ for i in range(length):
 
 eps=1
 
-#print(t2s.longest_matching_time(traj1, traj2, eps))
-print(t2s.smallest_matching_dist(traj1, traj2, eps))
+print('Longest matching time:')
+print(t2s.longest_matching_time(traj1, traj2, 0.16))
+
+#print('Smallest matching dist:')
+#print(t2s.smallest_matching_dist(traj1, traj2, eps))
 
 plt.plot(time1, y1)
 plt.plot(time2, y2)

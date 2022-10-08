@@ -44,7 +44,7 @@ class Traj2Sim:
 
     def compute_sim(self, verbose=False):
         rips_complex = gudhi.RipsComplex(distance_matrix=self.dist_mat)
-        self.simplex_tree = rips_complex.create_simplex_tree(max_dimension=4)
+        self.simplex_tree = rips_complex.create_simplex_tree(max_dimension=3)
         if verbose == True:
             result_str = 'Rips complex is of dimension ' + repr(self.simplex_tree.dimension()) + ' - ' + \
                 repr(self.simplex_tree.num_simplices()) + ' simplices - ' + \
