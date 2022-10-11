@@ -56,7 +56,7 @@ class MSSD:
             return min([x[0]/x[1] for x in self.filt])
         if metric == 't_thresh':
             i = 0
-            while self.filt[i][1] < t_thresh and i < len(self.filt):
+            while i < len(self.filt) and self.filt[i][1] < t_thresh:
                 i = i+1
             return self.filt[max(i-1,0)][0]
     
@@ -65,7 +65,7 @@ class MSSD:
 
     def t_thresh_metric(self, t_thresh=5):
         i = 0
-        while self.filt[i][1] < t_thresh and i < len(self.filt):
+        while i < len(self.filt) and self.filt[i][1] < t_thresh:
             i = i+1
         return self.filt[max(i-1,0)][0]
 

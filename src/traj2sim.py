@@ -11,6 +11,10 @@ from dtaidistance import dtw_visualisation as dtwvis
 
 from matching_string_distance import MSSD
 
+from alive_progress import alive_bar
+import time
+
+
 class Traj2Sim:
 
     def __init__(self):
@@ -48,14 +52,16 @@ class Traj2Sim:
                     print('Custom distance between ' + str(i) + ', ' + str(j) + ': ' + str(self.dist_mat[i,j]))
         
     def compute_mssd(self, verbose=False, met='t_thresh', thresh=5):
-        for i in range(len(self.trajectories)):
-            for j in range(i+1, len(self.trajectories)):
-                self.MSSD[i][j-i-1].set_trajectories(self.trajectories[i], self.trajectories[j])
-                self.dist_mat[i,j] = self.MSSD[i][j-i-1].compute_matching_dist(metric=met, t_thresh=thresh)
-                self.dist_mat[j,i] = self.dist_mat[i,j]
-                if verbose == True:
-                    print('Custom distance between ' + str(i) + ', ' + str(j) + ': ' + str(self.dist_mat[i,j]))
-        return
+        with alive_bar(int(len(self.trajectories)*(len(self.trajectories)+1)/2), force_tty=True) as bar:
+            for i in range(len(self.trajectories)):
+                for j in range(i+1, len(self.trajectories)):
+                    self.MSSD[i][j-i-1].set_trajectories(self.trajectories[i], self.trajectories[j])
+                    self.dist_mat[i,j] = self.MSSD[i][j-i-1].compute_matching_dist(metric=met, t_thresh=thresh)
+                    self.dist_mat[j,i] = self.dist_mat[i,j]
+                    bar()
+                    if verbose == True:
+                        print('MSSD distance between ' + str(i) + ', ' + str(j) + ': ' + str(self.dist_mat[i,j]))
+            return
 
     def compute_sim(self, verbose=False):
         rips_complex = gudhi.RipsComplex(distance_matrix=self.dist_mat)
