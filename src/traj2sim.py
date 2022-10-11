@@ -5,11 +5,11 @@ from scipy.spatial.distance import directed_hausdorff
 import matplotlib.pyplot as plt
 import operator
 
-
-
 from dtaidistance import dtw
 from dtaidistance import dtw_ndim
 from dtaidistance import dtw_visualisation as dtwvis
+
+from matching_string_distance import MSSD
 
 class Traj2Sim:
 
@@ -19,10 +19,12 @@ class Traj2Sim:
         self.dist_mat = np.empty((1,1))
         self.dist = 'integral'
         self.custom_pow=1
+        self.MSSD = []
 
     def set_trajectories(self, list_traj):
         self.trajectories = list_traj
         self.dist_mat = np.empty((len(list_traj), len(list_traj)))
+        self.MSSD = [[MSSD() for j in range(i+1,len(list_traj))] for i in range(len(list_traj))]
 
     def add_trajectories(self, list_traj):
         self.trajectories = self.trajectories + list_traj
@@ -31,6 +33,7 @@ class Traj2Sim:
         return np.linalg.norm(traj_1-traj_2)
 
     def compute_dist(self, verbose=False):
+
         for i in range(len(self.trajectories)):
             for j in range(len(self.trajectories)):
                 if self.dist == 'integral':
@@ -43,6 +46,16 @@ class Traj2Sim:
                     self.dist_mat[i,j] = dtw_ndim.distance(self.trajectories[i], self.trajectories[j])
                 if verbose == True:
                     print('Custom distance between ' + str(i) + ', ' + str(j) + ': ' + str(self.dist_mat[i,j]))
+        
+    def compute_mssd(self, verbose=False, met='t_thresh', thresh=5):
+        for i in range(len(self.trajectories)):
+            for j in range(i+1, len(self.trajectories)):
+                self.MSSD[i][j-i-1].set_trajectories(self.trajectories[i], self.trajectories[j])
+                self.dist_mat[i,j] = self.MSSD[i][j-i-1].compute_matching_dist(metric=met, t_thresh=thresh)
+                self.dist_mat[j,i] = self.dist_mat[i,j]
+                if verbose == True:
+                    print('Custom distance between ' + str(i) + ', ' + str(j) + ': ' + str(self.dist_mat[i,j]))
+        return
 
     def compute_sim(self, verbose=False):
         rips_complex = gudhi.RipsComplex(distance_matrix=self.dist_mat)
@@ -72,7 +85,7 @@ class Traj2Sim:
             print('PH Dimension 2')
             gudhi.plot_persistence_diagram(self.simplex_tree.persistence_intervals_in_dimension(2))
             plt.show()
-        if self.simplex_tree.persistence_intervals_in_dimension(2).shape[0] != 0: 
+        if self.simplex_tree.persistence_intervals_in_dimension(3).shape[0] != 0: 
             print('PH Dimension 3')
             gudhi.plot_persistence_diagram(self.simplex_tree.persistence_intervals_in_dimension(3))
             plt.show()
