@@ -17,7 +17,7 @@ class Traj2Sim:
         
         self.trajectories = []
         self.dist_mat = np.empty((1,1))
-        self.dist = 'custom'
+        self.dist = 'integral'
         self.custom_pow=1
 
     def set_trajectories(self, list_traj):
@@ -33,14 +33,16 @@ class Traj2Sim:
     def compute_dist(self, verbose=False):
         for i in range(len(self.trajectories)):
             for j in range(len(self.trajectories)):
-                if self.dist == 'custom':
+                if self.dist == 'integral':
+                    self.dist_mat[i,j] = self.integral_dist(self.trajectories[i], self.trajectories[j])
+                elif self.dist == 'custom':
                     self.dist_mat[i,j] = self.custom_broken_dist(self.trajectories[i], self.trajectories[j])
-                    if verbose == True:
-                        print('Custom distance between ' + str(i) + ', ' + str(j) + ': ' + str(self.dist_mat[i,j]))
                 elif self.dist == 'hausdorff':
                     self.dist_mat[i,j] = directed_hausdorff(self.trajectories[i], self.trajectories[j])[0]
                 elif self.dist == 'dtw':
                     self.dist_mat[i,j] = dtw_ndim.distance(self.trajectories[i], self.trajectories[j])
+                if verbose == True:
+                    print('Custom distance between ' + str(i) + ', ' + str(j) + ': ' + str(self.dist_mat[i,j]))
 
     def compute_sim(self, verbose=False):
         rips_complex = gudhi.RipsComplex(distance_matrix=self.dist_mat)
@@ -337,3 +339,17 @@ class Traj2Sim:
         
         #print(eps_list)
         return min(eps_list, key=operator.itemgetter(1))
+
+    def integral_dist(self, traj1, traj2):
+        dist_int = 0
+        for i in range(len(traj1)-1):
+            for j in range(len(traj2)-1):
+                dist_int += np.linalg.norm(traj1[i][1:]-traj2[j][1:])*(traj2[j+1][0]-traj2[j][0])*(traj1[i+1][0]-traj1[i][0])
+        return dist_int/((traj1[-1][0]-traj1[0][0])*(traj2[-1][0]-traj2[0][0]))
+
+    def matching_substring_dist(self, traj1, traj2, eps):
+        dist_int = 0
+        for i in range(len(traj1)-1):
+            for j in range(len(traj2)-1):
+                dist_int += np.linalg.norm(traj1[i][1:]-traj2[j][1:])*(traj2[j+1][0]-traj2[j][0])*(traj1[i+1][0]-traj1[i][0])
+        return dist_int/((traj1[-1][0]-traj1[0][0])*(traj2[-1][0]-traj2[0][0]))
