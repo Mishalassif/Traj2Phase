@@ -6,7 +6,7 @@ Recovering the phase space of a dynamical system from broken pieces of trajector
 
 Install the following packages
 
-`pip install gudhi dtw-python scipy`
+`pip install gudhi dtw-python scipy scikit-tda alive_progress`
 
 ## Setup
 
