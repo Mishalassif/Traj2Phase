@@ -18,17 +18,31 @@ import time
 class Traj2Sim:
 
     def __init__(self):
-        
         self.trajectories = []
         self.dist_mat = np.empty((1,1))
         self.dist = 'integral'
         self.custom_pow=1
-        self.MSSD = []
+        self.MSSD = MSSD()
+        self.bifilt = np.zeros((1,1,1))
+        self.bifilt_file = 'bifilt.npy'
+    
+    def save_bifilt(self, filename=None):
+        if filename == None:
+            np.save(self.bifilt_file, self.bifilt) 
+        else:
+            np.save(filename, self.bifilt)
+
+    def load_bifilt(self, filename=None):
+        self.bifilt = np.load(filename)
+        if filename == None:
+            self.bifilt = np.load(self.bifilt_file) 
+        else:
+            self.bifilt = np.load(filename) 
 
     def set_trajectories(self, list_traj):
         self.trajectories = list_traj
-        self.dist_mat = np.empty((len(list_traj), len(list_traj)))
-        self.MSSD = [[MSSD() for j in range(i+1,len(list_traj))] for i in range(len(list_traj))]
+        self.dist_mat = np.zeros((len(list_traj), len(list_traj)))
+        self.bifilt = np.zeros((len(list_traj[0]), len(list_traj), len(list_traj)))
 
     def add_trajectories(self, list_traj):
         self.trajectories = self.trajectories + list_traj
@@ -47,17 +61,21 @@ class Traj2Sim:
                     print('Custom distance between ' + str(i) + ', ' + str(j) + ': ' + str(self.dist_mat[i,j]))
         
     def compute_mssd(self, verbose=False, met='t_thresh', thresh=5):
-        with alive_bar(int(len(self.trajectories)*(len(self.trajectories)+1)/2), force_tty=True) as bar:
+        with alive_bar(int(len(self.trajectories)*(len(self.trajectories)-1)/2), force_tty=True) as bar:
             for i in range(len(self.trajectories)):
                 for j in range(i+1, len(self.trajectories)):
-                    self.MSSD[i][j-i-1].set_trajectories(self.trajectories[i], self.trajectories[j])
-                    self.dist_mat[i,j] = self.MSSD[i][j-i-1].compute_filt(met=met, t_thresh=thresh)
+                    self.MSSD.set_trajectories(self.trajectories[i], self.trajectories[j])
+                    tmp = self.MSSD.compute_filt()
+                    self.dist_mat[i,j] = self.MSSD.metric(met=met, t_thresh=thresh)
                     self.dist_mat[j,i] = self.dist_mat[i,j]
+                    self.bifilt[:,i,j] = tmp
+                    self.bifilt[:,j,i] = tmp
                     bar()
                     if verbose == True:
                         print('MSSD distance between ' + str(i) + ', ' + str(j) + ': ' + str(self.dist_mat[i,j]))
             for i in range(len(self.trajectories)):
                 self.dist_mat[i,i] = 0
+                self.bifilt[:,i,i] = np.zeros((self.bifilt.shape[0],))
             return
     
     def update_mssd(self, verbose=False, met='t_thresh', thresh=5):
