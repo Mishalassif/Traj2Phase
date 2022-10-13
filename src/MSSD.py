@@ -1,4 +1,7 @@
 import numpy as np
+import time
+# your code here
+
 
 class MSSD:
     def __init__(self):
@@ -50,6 +53,7 @@ class MSSD:
     def compute_filt(self):
         self.update_dist_mat()
         M = len(self.t1)
+        
         self.sorted_dist_arg = np.unravel_index(np.argsort(self.dist_mat, axis=None),
                 self.dist_mat.shape)
         self.sorted_dist = self.dist_mat[self.sorted_dist_arg]
