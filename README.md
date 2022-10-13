@@ -19,6 +19,7 @@ Add the src directory to PYTHONPATH using the command
 Flow lines            |  Phase space homology
 :-------------------------:|:-------------------------:
 ![Lorenz attractor](images/lorenz.png) |  ![Lorenz attractor](images/lorenz_pdgm.png)
+![Torus](images/torus_2.png) |  ![Torus](images/torus_2_pdgm.png)
 ![Torus](images/torus.png) |  ![Torus](images/torus_pdgm.png)
 ![Torus](images/torus_wind.png) |  ![Torus](images/torus_wind_pdgm.png)
-![Torus](images/sphere.png) |  ![Torus](images/sphere_pdgm.png)
+![Sphere](images/sphere.png) |  ![Sphere](images/sphere_pdgm.png)
