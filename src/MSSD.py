@@ -11,7 +11,6 @@ class MSSD:
         self.sorted_dist_arg = []
 
         self.filt_eps = []
-        self.prev_substrings = []
         self.init_dict = dict()
         self.fin_dict = dict()
         
@@ -24,7 +23,6 @@ class MSSD:
         self.sorted_dist_arg = []
 
         self.filt_eps = []
-        self.prev_substrings = []
         self.init_dict = dict()
         self.fin_dict = dict()
         
@@ -101,7 +99,6 @@ class MSSD:
     
     def clear_memory(self):
         self.filt_eps.clear()
-        self.prev_substrings.clear()
         self.init_dict.clear()
         self.fin_dict.clear()
 
