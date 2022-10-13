@@ -1,13 +1,15 @@
 import numpy as np
-import time
-# your code here
 
+import time
 
 class MSSD:
     def __init__(self):
         
         self.t1 = []
         self.t2 = []
+        
+        #self.string_struct = 'matrix'
+        self.string_struct = 'dict'
 
         self.dist_mat = []
         self.sorted_dist = []
@@ -19,6 +21,8 @@ class MSSD:
         
         self.filt = []
     
+        self._profiling = False
+
     def _reset(self):
         
         self.dist_mat = []
@@ -39,8 +43,11 @@ class MSSD:
         else:
             self.t1 = t2
             self.t2 = t1
-
+    
         self._reset()
+        if self.string_struct == 'matrix':
+            self.init_dict = -np.ones((len(self.t1)*len(self.t2),))
+            self.fin_dict = -np.ones((len(self.t1)*len(self.t2),))
 
     def update_dist_mat(self):
         
@@ -53,21 +60,31 @@ class MSSD:
     def compute_filt(self):
         self.update_dist_mat()
         M = len(self.t1)
+        N = len(self.t2)
         
+        if self._profiling == True:
+            start = time.process_time()
         self.sorted_dist_arg = np.unravel_index(np.argsort(self.dist_mat, axis=None),
                 self.dist_mat.shape)
         self.sorted_dist = self.dist_mat[self.sorted_dist_arg]
+        if self._profiling == True:
+            print('Time taken in Sorting stage: ' + str(time.process_time() - start))
+            start = time.process_time()
+
         self.init_dict[M*self.sorted_dist_arg[1][0]+self.sorted_dist_arg[0][0]] = M*self.sorted_dist_arg[1][0]+self.sorted_dist_arg[0][0]
         self.fin_dict[M*self.sorted_dist_arg[1][0]+self.sorted_dist_arg[0][0]] = M*self.sorted_dist_arg[1][0]+self.sorted_dist_arg[0][0]
         self.filt_eps.append((self.sorted_dist[0], 1))
-
+        
         for i in range(1, len(self.sorted_dist)):
             ind = (self.sorted_dist_arg[0][i], self.sorted_dist_arg[1][i])
             num_ind = M*ind[1] + ind[0]
             new_len = self._add_ind(num_ind)
             self.filt_eps.append((self.sorted_dist[i], max(self.filt_eps[-1][1], new_len)))
-        
-        N = len(self.t2)
+
+        if self._profiling == True:
+            print('Time taken in Main iteration stage with ' + self.string_struct + ' data structure: ' + str(time.process_time() - start))
+            start = time.process_time()
+
         t_curr = N
         self.filt.append([self.filt_eps[-1][0], self.filt_eps[-1][1]])
         for i in range(1, len(self.sorted_dist)):
@@ -87,6 +104,9 @@ class MSSD:
         for i in range(N):
             self.filt[i] = tmp[i][0]
         self.clear_memory()
+        if self._profiling == True:
+            print('Time taken in Post processing stage: ' + str(time.process_time() - start))
+
         return self.filt
     
     def metric(self, met='inf', t_thresh=5):
@@ -103,42 +123,76 @@ class MSSD:
     
     def clear_memory(self):
         self.filt_eps.clear()
-        self.init_dict.clear()
-        self.fin_dict.clear()
+        if self.string_struct == 'dict':
+            self.init_dict.clear()
+            self.fin_dict.clear()
+        elif self.string_struct == 'matrix':
+            self.init_dict = np.empty((1,1))
+            self.fin_dict = np.empty((1,1))
 
     def _add_ind(self, num_ind):
-
         M = len(self.t1)
+        N = len(self.t2)
         num_ind_next = num_ind+M+1
         num_ind_prev = num_ind-M-1
-
-        if num_ind_next in self.init_dict and num_ind_prev in self.fin_dict:
-            new_fin_ind = self.init_dict[num_ind_next]
-            new_init_ind = self.fin_dict[num_ind_prev]
-            self.init_dict.pop(num_ind_next)
-            self.fin_dict.pop(num_ind_prev)
-            self.init_dict[new_init_ind] = new_fin_ind
-            self.fin_dict[new_fin_ind] = new_init_ind
-            new_len = (new_fin_ind%M)-(new_init_ind%M)+1
-        elif num_ind_next in self.init_dict and num_ind_prev not in self.fin_dict:
-            new_fin_ind = self.init_dict[num_ind_next]
-            new_init_ind = num_ind
-            self.init_dict.pop(num_ind_next)
-            self.init_dict[new_init_ind] = new_fin_ind
-            self.fin_dict[new_fin_ind] = new_init_ind
-            new_len = (new_fin_ind%M)-(new_init_ind%M)+1
-        elif num_ind_next not in self.init_dict and num_ind_prev in self.fin_dict:
-            new_fin_ind = num_ind
-            new_init_ind = self.fin_dict[num_ind_prev]
-            self.fin_dict.pop(num_ind_prev)
-            self.fin_dict[new_fin_ind] = new_init_ind
-            self.init_dict[new_init_ind] = new_fin_ind
-            new_len = (new_fin_ind%M)-(new_init_ind%M)+1
-        elif num_ind_next not in self.init_dict and num_ind_prev not in self.fin_dict:
-            new_fin_ind = num_ind
-            new_init_ind = num_ind
-            self.fin_dict[new_fin_ind] = new_init_ind
-            self.init_dict[new_init_ind] = new_fin_ind
-            new_len = (new_fin_ind%M)-(new_init_ind%M)+1
         
+        if self.string_struct == 'dict':
+            if num_ind_next in self.init_dict and num_ind_prev in self.fin_dict:
+                new_fin_ind = self.init_dict[num_ind_next]
+                new_init_ind = self.fin_dict[num_ind_prev]
+                self.init_dict.pop(num_ind_next)
+                self.fin_dict.pop(num_ind_prev)
+                self.init_dict[new_init_ind] = new_fin_ind
+                self.fin_dict[new_fin_ind] = new_init_ind
+                new_len = (new_fin_ind%M)-(new_init_ind%M)+1
+            elif num_ind_next in self.init_dict and num_ind_prev not in self.fin_dict:
+                new_fin_ind = self.init_dict[num_ind_next]
+                new_init_ind = num_ind
+                self.init_dict.pop(num_ind_next)
+                self.init_dict[new_init_ind] = new_fin_ind
+                self.fin_dict[new_fin_ind] = new_init_ind
+                new_len = (new_fin_ind%M)-(new_init_ind%M)+1
+            elif num_ind_next not in self.init_dict and num_ind_prev in self.fin_dict:
+                new_fin_ind = num_ind
+                new_init_ind = self.fin_dict[num_ind_prev]
+                self.fin_dict.pop(num_ind_prev)
+                self.fin_dict[new_fin_ind] = new_init_ind
+                self.init_dict[new_init_ind] = new_fin_ind
+                new_len = (new_fin_ind%M)-(new_init_ind%M)+1
+            elif num_ind_next not in self.init_dict and num_ind_prev not in self.fin_dict:
+                new_fin_ind = num_ind
+                new_init_ind = num_ind
+                self.fin_dict[new_fin_ind] = new_init_ind
+                self.init_dict[new_init_ind] = new_fin_ind
+                new_len = (new_fin_ind%M)-(new_init_ind%M)+1
+        
+        elif self.string_struct == 'matrix':
+            if (num_ind_next < M*N and self.init_dict[num_ind_next] >= 0) and (num_ind_prev >= 0 and self.fin_dict[num_ind_prev] >= 0):
+                new_fin_ind = int(self.init_dict[num_ind_next])
+                new_init_ind = int(self.fin_dict[num_ind_prev])
+                self.init_dict[num_ind_next] = -1
+                self.fin_dict[num_ind_prev] = -1
+                self.init_dict[new_init_ind] = new_fin_ind
+                self.fin_dict[new_fin_ind] = new_init_ind
+                new_len = (new_fin_ind%M)-(new_init_ind%M)+1
+            elif (num_ind_next < M*N and self.init_dict[num_ind_next] >= 0) and (num_ind_prev < 0 or self.fin_dict[num_ind_prev] < 0):
+                new_fin_ind = int(self.init_dict[num_ind_next])
+                new_init_ind = num_ind
+                self.init_dict[num_ind_next] = -1
+                self.init_dict[new_init_ind] = new_fin_ind
+                self.fin_dict[new_fin_ind] = new_init_ind
+                new_len = (new_fin_ind%M)-(new_init_ind%M)+1
+            elif (num_ind_next >= M*N or self.init_dict[num_ind_next] < 0) and (num_ind_prev >= 0 and self.fin_dict[num_ind_prev] >= 0):
+                new_fin_ind = num_ind
+                new_init_ind = int(self.fin_dict[num_ind_prev])
+                self.fin_dict[num_ind_prev] = -1
+                self.fin_dict[new_fin_ind] = new_init_ind
+                self.init_dict[new_init_ind] = new_fin_ind
+                new_len = (new_fin_ind%M)-(new_init_ind%M)+1
+            elif (num_ind_next >= M*N or self.init_dict[num_ind_next] < 0) and (num_ind_prev < 0 or self.fin_dict[num_ind_prev] < 0):
+                new_fin_ind = num_ind
+                new_init_ind = num_ind
+                self.fin_dict[new_fin_ind] = new_init_ind
+                self.init_dict[new_init_ind] = new_fin_ind
+                new_len = (new_fin_ind%M)-(new_init_ind%M)+1
         return new_len
