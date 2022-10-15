@@ -4,8 +4,8 @@
 
 ## MSSD Bifiltration
 
-Consider a list of $m$ trajectories of length $n$, $\{(x_i[1], x_i[2], ..., x_i[n])\}, i = 1,...,m$, such that each trajectory is a regular sampling of 
-a set of flow lines on a topological space $X$. The objective of this project is to recover the topology of $X$ from this set of trajectories. The main 
+Consider a list of $m$ trajectories of length $n$, $\{(x_i[1], x_i[2], ..., x_i[n])\}, i = 1,...,m$, where each trajectory represents a regular sampling of 
+a flow line on a topological space $X$. The objective of this project is to recover the topology of $X$ from this set of trajectories. The main 
 tool we use here is the following bifiltration on the parameter set $\mathbb{R_+} \times [n]$, which we refer to as the *MSSD (Matching SubString Distance)
 bifiltration*.
 
