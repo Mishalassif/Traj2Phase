@@ -14,7 +14,7 @@ Add the src directory to PYTHONPATH using the command
 
 `source setup.sh`
 
-## Example results
+## Low dimensional examples
 
 Flow lines            |  Phase space homology
 :-------------------------:|:-------------------------:
