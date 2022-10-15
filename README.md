@@ -14,7 +14,7 @@ $x_i[\cdot]$ and $x_j[\cdot]$ have subtrajectories of length greater than $t$ su
 <p align="center">$[m] = V\left(\mathcal{G}(\epsilon, t) \right), \quad (i, j) \in E\left(\mathcal{G}(\epsilon, t) \right) \text{ if }\exists s_1, s_2$ such that $d(x_i[s_1 + s], x_j[s_2+s]) < \epsilon$ for $s=0,..,t-1$.</p>
  The MSSD bifiltration $X(\epsilon, t)$ is then defined as the Vietoris-Rips complex of $\mathcal{G}(\epsilon, t)$: $\quad X(\epsilon, t) = \mathcal{VR}(\mathcal{G}(\epsilon, t))$.
 
- Our proposition is that the Persistent homology of the MSSD bifiltraion contains significant information about the topology of $X$, and this is confirmed
+ Our proposition is that the Persistent homology of the MSSD bifiltration contains significant information about the topology of $X$, and this is confirmed
  in the low dimensional example notebooks in [examples/](examples/) and the images in the *Low dimensional examples* section below.
 
 ## Installation
@@ -30,6 +30,8 @@ Install the following packages
 Add the src directory to PYTHONPATH using the command
 
 `source setup.sh`
+ 
+ The notebooks in the [examples/](examples/) folder can now be run.
 
 ## Low dimensional examples
 
