@@ -17,4 +17,4 @@ $x_i[\cdot]$ and $x_j[\cdot]$ have subtrajectories of length greater than $t$ su
 
 The MSSD class in [MSSD.py](src/MSSD.py) contains the main algorithm that computes the necessary metric information for determining the MSSD bifiltration 
 and its persistent homology. It takes as input two $n$ length trajectories: $(x_i[1],..,x_i[n])$ and $(x_j[1],...,x_j[n])$ and outputs an $n$ length vector
-$(\epsilon[1], ..., \epsilon[n])$ such that for each $\epsilon > \epsilon[t], (i,j) \in E(\mathcal{G}(\epsilon, t))$.
+$(\epsilon[1], ..., \epsilon[n])$ such that for each $\epsilon > \epsilon[t], (i,j) \in E(\mathcal{G}(\epsilon, t))$. 
