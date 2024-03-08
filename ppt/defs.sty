@@ -1,0 +1,251 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Set spacing between paragraphs:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\setlength{\parskip}{2mm}
+
+%% Special fonts
+\DeclareFontFamily{T1}{pzc}{}
+\DeclareFontShape{T1}{pzc}{m}{it}{<-> [1.2] pzcmi8t}{}
+\DeclareMathAlphabet{\mathpzc}{T1}{pzc}{m}{it}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Standard packages:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\let\openbox\relax
+\usepackage{amsmath,amsthm, amssymb}
+\allowdisplaybreaks
+%\usepackage[usenames, dvipsnames]{color}
+%\usepackage[usenames, dvipsnames]{xcolor}
+\usepackage{graphicx}
+\usepackage{subcaption}
+
+\usepackage{mathtools}
+\mathtoolsset{mathic=true}
+
+\iffalse
+\usepackage{tcolorbox}
+\tcbset{colback=gray!10!white}
+\tcbsetforeverylayer{colframe=gray!90!black}
+
+\usepackage{newtxtext}
+\usepackage[T1]{fontenc}
+\usepackage[varg, vvarbb]{newtxmath}
+\usepackage[scale=0.8, zerostyle=d]{newtxtt}
+
+%\usepackage{dsfont}
+%\usepackage{mathrsfs}
+%\usepackage{showframe}
+
+\usepackage{tikz-cd}
+%\usepackage{tikzscale}
+\usetikzlibrary{arrows}
+
+\usepackage[textwidth=1in, textsize=small]{todonotes}
+
+%% Wide hats and wide checks:
+\usepackage{scalerel,stackengine}
+\stackMath
+\newcommand\widecheck[1]{%
+	\savestack{\tmpbox}{\stretchto{%
+		\scaleto{%
+			\scalerel*[\widthof{\ensuremath{#1}}]{\kern-.6pt\bigwedge\kern-.6pt}%
+			{\rule[-\textheight/2]{1ex}{\textheight}}%WIDTH-LIMITED BIG WEDGE
+		}{\textheight}%
+	}{0.5ex}}%
+	\stackon[1pt]{#1}{\scalebox{-1}{\tmpbox}}%
+}
+\fi
+%% Equation numbering:
+% \numberwithin{section}{chapter}
+\numberwithin{equation}{section}
+
+%% Change the default section notation:
+%\newcommand{\sectionname}{\S\!}
+%\newcommand{\subsectionname}{\S\!}
+%\newcommand{\subsubsectionname}{\S\!}
+%\newcommand{\sectionname}{\S\!}
+%\newcommand{\subsectionname}{\S\!}
+%\newcommand{\subsubsectionname}{\S\!}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Theorem Styles:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\newtheorem{theorem}{Theorem}[section]
+%\newtheorem{lemma}[theorem]{Lemma}
+%\newtheorem{proposition}[theorem]{Proposition}
+%\newtheorem{corollary}[theorem]{Corollary}
+%%\theoremstyle{remark}
+%\newtheorem{remark}[theorem]{Remark}
+%\newtheorem{assumption}[theorem]{Assumption}
+%\newtheorem{exmpl}[theorem]{Example}
+%\newtheorem{definition}[theorem]{Definition}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Definitions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\DeclareMathOperator*{\esssup}{ess\,sup}
+\DeclareMathOperator{\sat}{sat}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator{\linspan}{span}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\tr}{tr}
+\DeclareMathOperator*{\minimize}{minimize}
+\DeclareMathOperator*{\maximize}{maximize}
+\DeclareMathOperator{\sbjto}{subject\;to}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator{\id}{id}
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\blkdiag}{blkdiag}
+\DeclareMathOperator{\sgn}{sgn}
+\DeclareMathOperator{\support}{supp}
+\DeclareMathOperator{\bandStop}{BS}
+%\DeclareMathOperator\erfc{erfc}
+\DeclarePairedDelimiterX\set[1]\lbrace\rbrace{\def\suchthat{\; \delimsize\vert\;}#1}
+%\DeclarePairedDelimiterX\size[1]\lvert\rvert{#1}
+
+\newcommand{\ra}{\ensuremath{\rightarrow}}
+\newcommand{\Ra}{\ensuremath{\;\Longrightarrow\;}}
+\newcommand{\lra}{\ensuremath{\longrightarrow}}
+\newcommand{\eps}{\ensuremath{\varepsilon}}
+\newcommand{\fa}{\ensuremath{\forall\,}}
+\renewcommand{\le}{\ensuremath{\leqslant}}
+\renewcommand{\ge}{\ensuremath{\geqslant}}
+\renewcommand{\leq}{\le}
+\renewcommand{\geq}{\ge}
+\renewcommand{\mapsto}{\ensuremath{\longmapsto}}
+\renewcommand{\qedsymbol}{\(\Box\)}
+\newcommand{\setmin}{\ensuremath{\setminus}}%smallsetminus
+
+\let\oldemptyset\emptyset
+\let\emptyset\varnothing
+
+\newcommand{\Expec}[1]{\ensuremath{\mathsf{E}\!\left[\vphantom{\big|}#1\vphantom{\big|}\right]}}
+\newcommand{\indic}[1]{\ensuremath{\mathsf{1}_{#1}}}
+\newcommand{\abs}[1]{\ensuremath{\left\lvert{#1}\right\rvert}}
+\newcommand{\inprod}[2]{\ensuremath{\left\langle{#1},{#2}\right\rangle}}
+\newcommand{\secref}[1]{\S\ref{#1}}
+\newcommand{\appref}[1]{Appendix \secref{#1}}
+\newcommand{\embf}[1]{\textbf{\emph{#1}}}
+\newcommand{\Lp}[1]{\mathrm{L}_{#1}}
+\newcommand{\mcal}{\mathcal}
+\newcommand{\wt}{\widetilde}
+\newcommand{\unitcircle}{\partial\mathbb{D}}
+\newcommand{\conj}[1]{\overline{#1}}
+\newcommand{\dualgroup}[1]{\widehat{#1}}
+\newcommand{\stcomp}[1]{{\left(#1\right)}^{\mathsf{c}}}
+
+%\renewcommand{\transp}{\ensuremath{^{\scriptscriptstyle{\top}}}}
+\newcommand{\opt}{\ensuremath{^{\star}}}%\varstar, \star, \ast, \coasterisk
+
+\newcommand{\inverse}{\ensuremath{^{-1}}}
+\newcommand{\psinv}{\ensuremath{^{+}}}
+\newcommand{\dd}{\ensuremath{\mathrm{d}}}
+\newcommand{\ol}{\overline}
+\newcommand{\mx}{\ensuremath{\vee}}
+\newcommand{\mn}{\ensuremath{\wedge}}
+\newcommand{\Let}{\coloneqq}
+\newcommand{\teL}{\eqqcolon}
+\newcommand{\nn}{\nonumber}
+\newcommand{\ii}{\mathsf{i}}
+\newcommand{\half}{\ensuremath{\frac{1}{2}}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% SETS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\R}{\ensuremath{\mathbb{R}}}
+\newcommand{\T}{\ensuremath{T^2}}
+\newcommand{\Rpos}{\ensuremath{\mathbb{R}_{+}}}
+\renewcommand{\Rpos}{\ensuremath{\left]0, +\infty\right[}}
+\newcommand{\Rnneg}{\ensuremath{\left[0, +\infty\right[}}
+\newcommand{\M}{\ensuremath{\mathbb{M}}}
+\newcommand{\Nz}{\ensuremath{\mathbb{N}}}
+\newcommand{\N}{\ensuremath{\mathbb{N}^\ast}}
+\newcommand{\C}{\ensuremath{\mathbb{C}}}
+\newcommand{\puncturedC}{\ensuremath{\C^\ast}}
+\newcommand{\Z}{\ensuremath{\mathbb{Z}}}
+\newcommand{\I}{\ensuremath{[0,1]}}
+\newcommand{\Ig}{\ensuremath{[a,b]}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% MATRICES AND NORMS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\norm}[1]{\ensuremath{\left\lVert #1 \right\rVert}}
+\newcommand{\infnorm}[1]{\ensuremath{\left\lVert #1 \right\rVert}_{\infty}}
+\newcommand{\unifnorm}[1]{\ensuremath{\left\lVert #1 \right\rVert}_{\mathrm{u}}}
+\newcommand{\ltwonorm}[1]{\ensuremath{\left\lVert{#1}\right\rVert_{2}}}
+\newcommand{\Ltwonorm}[2]{\ensuremath{\left\|{#1}\right\|_{\mathcal{L}^2{\left(#2\right)}}}}
+\newcommand{\epower}[1]{\ensuremath{\mathrm{e}^{#1}}}
+\newcommand{\pmat}[1]{\begin{pmatrix}#1\end{pmatrix}}
+\newcommand{\bmat}[1]{\begin{bmatrix}#1\end{bmatrix}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% VECTOR STRUCTURES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\kth}[1][k]{\ensuremath{^{(#1)}}}
+
+\newcommand{\columnVector}[2]{
+	\begin{pmatrix}
+		#1_{0} \\ \vdots \\ #1_{#2-1}
+	\end{pmatrix}
+}
+
+\newcommand{\stateVector}[2]{
+	\begin{pmatrix}
+		#1_{0}\\ \vdots \\ #1_{#2}
+	\end{pmatrix}
+}
+
+\newcommand{\trajMatrix}[3]{
+	\begin{pmatrix}
+		I_{#2} \\ #1 \\ \vdots \\ #1^{#3}
+	\end{pmatrix}
+}
+
+\newcommand{\DFT}[2]{
+	\begin{pmatrix}
+		1 & 1	& \ldots &	1 \\
+		1 & #1 	& \ldots & #1^{#2-1} \\
+		\vdots 	& \vdots & \ddots & \vdots \\
+		1 & #1^{#2-1} & \ldots & #1^{(#2-1)(#2-1)}
+	\end{pmatrix}
+}
+
+\newcommand{\conEvolMatrix}[5]{
+	\begin{pmatrix}
+		0_{#3 \times #4}& \ldots& \ldots& 0_{#3 \times #4} \\
+		#2 			& \ddots& 		& \vdots\\
+		#1 #2		& #2	& \ddots& \vdots\\
+		\vdots		& 		& \ddots& 0_{#3 \times #4} \\
+		#1^{#5-1}#2	& \ldots& #1 #2 & #2
+	\end{pmatrix}
+}
+
+\DeclareMathOperator{\im}{Im}
+\DeclareMathOperator{\rk}{Rank}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% MANIFOLD DEFINITIONS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\tangentLift}[1]{\ensuremath{D_{#1}}}
+\newcommand{\tangentSpace}[1]{\ensuremath{T_{#1}}}
+\newcommand{\critCurve}{\ensuremath{\Sigma}}
+\newcommand{\restr}[1]{|_{#1}}
+\newcommand{\filt}[1]{\ensuremath{H_{#1}}}
+\newcommand{\filtf}[1]{\ensuremath{F_{#1}}}
+\newcommand{\filtg}[1]{\ensuremath{G_{#1}}}
+%\newcommand{\ofiltf}[1]{\ensuremath{\overset{\circ}{F_{#1}}}}
+\DeclareMathOperator{\Int}{Int}
+\newcommand{\ofiltf}[1]{\ensuremath{\Int{F_{#1}}}}
+\newcommand{\ofiltg}[1]{\ensuremath{\Int{G_{#1}}}}
+\newcommand{\pd}{\ensuremath{PH}}
+\newcommand{\smoothFns}[1]{\ensuremath{C^{\infty}\left(#1\right)}}
+\newcommand{\grad}{\nabla}
+\newcommand{\flow}[2]{\ensuremath{\psi^{#1}\left(#2\right)}}
+\newcommand{\cell}[1]{\ensuremath{e^{#1}}}
+\newcommand{\homotopeq}{\ensuremath{\simeq}}
+

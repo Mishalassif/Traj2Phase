@@ -21,13 +21,13 @@ class Dist2Bifilt:
         else:
             self.bifilt = np.load(filename) 
         self.bifilt = np.ceil(self.bifilt)
-        #self.bifilt = self.bifilt[:,:10,:10]
+        #self.bifilt = self.bifilt[:,:2,:2]
         self.simplex_tree = [0 for i in range(self.bifilt.shape[0])]
 
     def compute_sim(self, verbose=False):
         for i in range(self.bifilt.shape[0]):
             rips_complex = gudhi.RipsComplex(distance_matrix=self.bifilt[i,:,:])
-            self.simplex_tree[i] = rips_complex.create_simplex_tree(max_dimension=1)
+            self.simplex_tree[i] = rips_complex.create_simplex_tree(max_dimension=2)
 
         if verbose == True:
             result_str = 'Rips complex is of dimension ' + repr(self.simplex_tree[0].dimension()) + ' - ' + \
@@ -51,14 +51,22 @@ class Dist2Bifilt:
                         continue
                     filt = []
                     for i in range(min(N,N)):
-                        filt.append(i)
-                        filt.append(self.simplex_tree[N-1-i].filtration(filtered_value[0]))
+                        filt.append(N-1-i)
+                        filt.append(self.simplex_tree[i].filtration(filtered_value[0]))
                     row = ''
                     for i in range(len(filtered_value[0])):
                         row = row + str(filtered_value[0][i]) + ' '
                     row = row + '; '
+                    prev = [filt[0], filt[1]]
+                    for i in range(int(len(filt)/2)):
+                        if filt[2*i+1] > prev[1]:
+                            row = row + str(prev[0]) + ' ' + str(prev[1]) + ' '
+                        prev = [filt[2*i], filt[2*i+1]]
+                    row = row + str(prev[0]) + ' ' + str(prev[1]) + ' '
+                    '''
                     for i in range(len(filt)):
                         row = row + str(filt[i]) + ' '
+                    '''
                     row = row + '\n'
                     print(row)
                     myfile.write(row)

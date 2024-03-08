@@ -1,0 +1,42 @@
+\frametitle{}
+\begin{columns}[t]
+
+    % {{{ left column
+
+    \begin{column}{.45\linewidth}
+      \begin{tcolorbox}[toplevelbox,adjusted title={Problem Statement}]
+        \lipsum[1]
+      \end{tcolorbox}
+
+      \begin{tcolorbox}[toplevelbox,adjusted title=Approach]
+        \lipsum[2-3]
+      \end{tcolorbox}
+
+      \begin{tcolorbox}[toplevelbox,adjusted title=Tech Detail 1]
+        \lipsum[4]
+      \end{tcolorbox}
+
+    \end{column}
+
+    % }}}
+
+    % {{{ right column
+
+    \begin{column}{.45\linewidth}
+      \begin{tcolorbox}[toplevelbox,adjusted title=Tech Detail 2]
+        \lipsum[5]
+      \end{tcolorbox}
+
+      \begin{tcolorbox}[toplevelbox,adjusted title=Results]
+        \lipsum[6-7]
+      \end{tcolorbox}
+
+      \begin{tcolorbox}[toplevelbox,adjusted title=References]
+        \lipsum[8]
+      \end{tcolorbox}
+
+    \end{column}
+
+    % }}}
+
+  \end{columns}
